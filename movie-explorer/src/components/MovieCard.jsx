@@ -1,50 +1,105 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Card, CardActionArea } from '@mui/material';
+import { Box, Typography, Card, CardActionArea, Button, CardMedia, CardContent } from '@mui/material';
+import { AuthContext } from '../context/AuthContext';
 
-const MovieCard = ({ movie }) => {
+const MovieCard = ({ movie, onRemoveFavorite }) => {
   const navigate = useNavigate();
+  const { user, getFavorites, setFavorites } = useContext(AuthContext);
+  const favorites = user ? getFavorites() : [];
+  const isFavorite = favorites.some(fav => fav.id === movie.id);
 
   const handleClick = () => {
-    console.log('Navigating to movie details, id:', movie.id);
     navigate(`/movie/${movie.id}`);
   };
 
+  const handleAddFavorite = (e) => {
+    e.stopPropagation();
+    if (!isFavorite) {
+      setFavorites([...favorites, movie]);
+    }
+  };
+
+  const handleRemoveFavorite = (e) => {
+    e.stopPropagation();
+    setFavorites(favorites.filter(fav => fav.id !== movie.id));
+  };
+
   return (
-    <Card
-      sx={{
-        height: '250px', // Fixed height for stability
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        bgcolor: '#f5f5f5',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      }}
-    >
+    <Card sx={{ 
+      width: 200, 
+      height: 350, 
+      margin: '0 auto',
+      boxShadow: 2
+    }}>
       <CardActionArea onClick={handleClick}>
-        <Box
-          sx={{
-            height: '120px',
-            bgcolor: '#ddd',
-            borderRadius: '4px 4px 0 0',
-            mb: 1,
+        <CardMedia
+          component="img"
+          height="200"
+          image={movie.poster_path ? `https://image.tmdb.org/t/p/w342${movie.poster_path}` : ''}
+          alt={movie.title}
+          sx={{ 
+            backgroundColor: movie.poster_path ? 'transparent' : '#ddd', 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
-        /> {/* Poster placeholder */}
-        <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography
-            variant="h6"
-            sx={{ fontSize: '1.1rem', mb: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}
-          >
+        />
+        {!movie.poster_path && (
+          <Box sx={{ 
+            position: 'absolute', 
+            top: '90px', 
+            width: '100%', 
+            textAlign: 'center' 
+          }}>
+            <Typography>No Image</Typography>
+          </Box>
+        )}
+        <CardContent>
+          <Typography gutterBottom variant="h6" component="div" noWrap>
             {movie.title}
           </Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             {movie.release_date?.split('-')[0] || 'N/A'}
           </Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             Rating: {movie.vote_average?.toFixed(1) || 'N/A'}
           </Typography>
-        </Box>
+          {user && (
+            <Box sx={{ mt: 1 }}>
+              {!isFavorite ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  onClick={handleAddFavorite}
+                >
+                  Add to Favorites
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  disabled
+                >
+                  In Favorites
+                </Button>
+              )}
+              {isFavorite && typeof onRemoveFavorite === 'function' && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={handleRemoveFavorite}
+                >
+                  Remove
+                </Button>
+              )}
+            </Box>
+          )}
+        </CardContent>
       </CardActionArea>
     </Card>
   );
