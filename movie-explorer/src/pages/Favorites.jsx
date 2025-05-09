@@ -1,6 +1,5 @@
 import { useContext } from "react"
 import { AuthContext } from "../context/AuthContext"
-import MovieList from "../components/MovieList"
 import {
   Box,
   Typography,
@@ -8,17 +7,20 @@ import {
   Paper,
   Button,
   useTheme,
-  useMediaQuery,
+  Grid,
 } from "@mui/material"
-import { Favorite, Login } from "@mui/icons-material"
+import { Favorite, Login, Delete } from "@mui/icons-material"
 import { Link as RouterLink } from "react-router-dom"
 import { motion } from "framer-motion"
+import MovieCard from "../components/MovieCard"
 
 const Favorites = () => {
-  const { user, getFavorites } = useContext(AuthContext)
+  const { user, getFavorites, removeFavorite } = useContext(AuthContext)
   const favorites = user ? getFavorites() : []
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const handleRemoveFavorite = (movieId) => {
+    removeFavorite(movieId);
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -35,70 +37,6 @@ const Favorites = () => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  }
-
-  if (!user) {
-    return (
-      <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-          <Paper
-            elevation={3}
-            component={motion.div}
-            variants={itemVariants}
-            sx={{
-              p: { xs: 3, md: 5 },
-              textAlign: "center",
-              borderRadius: 3,
-              bgcolor: theme.palette.background.paper,
-              backgroundImage: theme.palette.mode === "dark"
-                ? "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0))"
-                : "none",
-            }}
-          >
-            <Typography
-              variant="h5"
-              component={motion.h2}
-              variants={itemVariants}
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                color: theme.palette.text.primary,
-              }}
-            >
-              Please log in to view your favorites
-            </Typography>
-            <motion.div variants={itemVariants}>
-              <Button
-                component={RouterLink}
-                to="/login"
-                variant="contained"
-                color="primary"
-                size="large"
-                startIcon={<Login />}
-                sx={{
-                  px: 4,
-                  py: 1.2,
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  boxShadow: 3,
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: 4,
-                  },
-                }}
-              >
-                Log In
-              </Button>
-            </motion.div>
-          </Paper>
-        </motion.div>
-      </Container>
-    )
   }
 
   if (favorites.length === 0) {
@@ -229,7 +167,16 @@ const Favorites = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
       >
-        <MovieList movies={favorites} />
+        <Grid container spacing={3} justifyContent="center">
+          {favorites.map(movie => (
+            <Grid item key={movie.id} xs={12} sm={6} md={4} lg={3}>
+              <MovieCard 
+                movie={movie} 
+                onRemoveFavorite={handleRemoveFavorite} 
+              />
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Container>
   )

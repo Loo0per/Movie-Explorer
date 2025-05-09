@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { 
   Typography, 
   Container, 
@@ -9,15 +9,19 @@ import {
   Card, 
   CardContent, 
   CircularProgress,
-  Paper
+  Paper,
+  Button
 } from '@mui/material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { getMovieDetails } from '../services/tmdbApi';
+import { AuthContext } from '../context/AuthContext';
 
 const MovieDetails = ({ movieId }) => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { user, addFavorite, removeFavorite, isInFavorites } = useContext(AuthContext);
+  
   useEffect(() => {
     setLoading(true);
     getMovieDetails(movieId)
@@ -30,6 +34,18 @@ const MovieDetails = ({ movieId }) => {
         setLoading(false);
       });
   }, [movieId]);
+
+  const isFavorite = user && movie ? isInFavorites(movie.id) : false;
+
+  const handleFavoriteToggle = () => {
+    if (!user || !movie) return;
+    
+    if (!isFavorite) {
+      addFavorite(movie);
+    } else {
+      removeFavorite(movie.id);
+    }
+  };
 
   if (loading) {
     return (
@@ -97,6 +113,21 @@ const MovieDetails = ({ movieId }) => {
                 </Box>
               )}
             </Box>
+
+            {user && (
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Button
+                  variant={isFavorite ? "contained" : "outlined"}
+                  color={isFavorite ? "error" : "secondary"}
+                  startIcon={isFavorite ? <Favorite /> : <FavoriteBorder />}
+                  onClick={handleFavoriteToggle}
+                  fullWidth
+                  sx={{ borderRadius: 2 }}
+                >
+                  {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                </Button>
+              </Box>
+            )}
           </Grid>
 
           {/* Movie Details */}
@@ -107,7 +138,7 @@ const MovieDetails = ({ movieId }) => {
             
             <Box sx={{ mb: 2 }}>
               {genres.map(genre => (
-                <Chip key={genre.id} label={genre.name} sx={{ mr: 1, mb: 1 }} color="primary" variant="outlined" />
+                <Chip key={genre.id} label={genre.name} sx={{ mr: 1, mb: 1 }} color="secondary" variant="outlined" />
               ))}
             </Box>
             

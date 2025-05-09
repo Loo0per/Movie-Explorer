@@ -52,11 +52,10 @@ const getCommonTheme = () => ({
           fontWeight: 500,
         },
       },
-    },
-    MuiCssBaseline: {
+    },    MuiCssBaseline: {
       styleOverrides: {
         body: {
-          transition: "background-color 0.3s ease, color 0.3s ease",
+          transition: "background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease",
         },
       },
     },
@@ -95,7 +94,7 @@ const palettes = {
       contrastText: "#ffffff",
     },
     secondary: {
-      main: "#100B00",
+      main: "#ffffff",
       light: "#fce4ec",
       dark: "#f06292",
       contrastText: "#ffffff",

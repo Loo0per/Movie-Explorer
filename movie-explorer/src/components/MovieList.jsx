@@ -1,6 +1,6 @@
-import React from 'react';
 import { Grid, Box } from "@mui/material";
-import MovieCard from "./MovieCard";
+
+import MovieCard from "./MovieCard.jsx";
 
 const MovieList = ({ movies, onRemoveFavorite }) => {
   if (!movies || movies.length === 0) return null;

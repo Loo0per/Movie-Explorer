@@ -18,37 +18,39 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
-  Tooltip,
   Badge,
 } from "@mui/material"
 import { Menu as MenuIcon, Home, Favorite, Login, Logout, Movie, Brightness4, Brightness7 } from "@mui/icons-material"
 import { Link as RouterLink, useLocation } from "react-router-dom"
 import { AuthContext } from "../context/AuthContext"
-import { motion } from "framer-motion"
 
 const Navbar = ({ mode, toggleTheme }) => {
+
   const { user, logout, getFavorites } = useContext(AuthContext)
+  const location = useLocation()
+
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuAnchor, setUserMenuAnchor] = useState(null)
   const [scrolled, setScrolled] = useState(false)
+
+
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
-  const location = useLocation()
+
+
   const favorites = user ? getFavorites() : []
 
-  // Handle scroll effect for navbar
+  
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true)
-      } else {
-        setScrolled(false)
-      }
+      setScrolled(window.scrollY > 20)
     }
-    
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
 
   const handleUserMenuOpen = (event) => {
     setUserMenuAnchor(event.currentTarget)
@@ -67,35 +69,22 @@ const Navbar = ({ mode, toggleTheme }) => {
     setMobileMenuOpen(!mobileMenuOpen)
   }
 
+
   const navLinks = [
     { name: "Home", path: "/", icon: <Home /> },
     { name: "Favorites", path: "/favorites", icon: <Favorite /> },
   ]
 
+
   const isActive = (path) => {
     return location.pathname === path
   }
 
-  const navbarVariants = {
-    hidden: { y: -50 },
-    visible: {
-      y: 0,
-      transition: { type: "spring", stiffness: 80, damping: 15 },
-    },
-  }
-
   return (
-    <motion.div initial="hidden" animate="visible" variants={navbarVariants}>
-      <AppBar
-        position="fixed"
-        elevation={scrolled ? 4 : 0}
-        sx={{
-          boxShadow: scrolled ? "0 4px 12px rgba(0,0,0,0.15)" : "0 2px 10px rgba(0,0,0,0.1)",
-          transition: "all 0.3s ease",
-        }}
-      >
+    <>
+      <AppBar position="fixed" elevation={scrolled ? 4 : 0} >
         <Container maxWidth="md">
-          <Toolbar sx={{ py: { xs: 0.5, md: scrolled ? 0.3 : 0.5 }, px: 1 }}>
+          <Toolbar>
             {/* Logo */}
             <Typography
               variant="h6"
@@ -108,11 +97,9 @@ const Navbar = ({ mode, toggleTheme }) => {
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
-                fontSize: scrolled ? "1.1rem" : "1.25rem",
-                transition: "all 0.3s ease",
               }}
             >
-              <Movie sx={{ mr: 1, fontSize: scrolled ? 24 : 28, transition: "all 0.3s ease" }} />
+              <Movie sx={{ mr: 1 }} />
               Movie Explorer
             </Typography>
 
@@ -120,22 +107,11 @@ const Navbar = ({ mode, toggleTheme }) => {
             {!isMobile && (
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 {/* Theme Toggle Button */}
-                <Tooltip title={`Switch to ${mode === "light" ? "dark" : "light"} mode`} arrow>
-                  <IconButton
-                    onClick={toggleTheme}
-                    color="inherit"
-                    sx={{
-                      mr: 1.5,
-                      bgcolor: "rgba(255,255,255,0.1)",
-                      "&:hover": {
-                        bgcolor: "rgba(255,255,255,0.2)",
-                      },
-                    }}
-                  >
-                    {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-                  </IconButton>
-                </Tooltip>
-                
+                <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 1 }}>
+                  {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                </IconButton>
+
+                {/* Navigation Links */}
                 {navLinks.map((link) => (
                   <Button
                     key={link.path}
@@ -145,23 +121,8 @@ const Navbar = ({ mode, toggleTheme }) => {
                     startIcon={link.icon}
                     sx={{
                       mx: 0.5,
-                      py: scrolled ? 0.8 : 1,
-                      px: scrolled ? 1.5 : 2,
-                      borderRadius: 2,
-                      fontWeight: 500,
-                      transition: "all 0.3s ease",
                       ...(isActive(link.path) && {
                         bgcolor: "rgba(255,255,255,0.15)",
-                        "&::after": {
-                          content: '""',
-                          position: "absolute",
-                          bottom: 6,
-                          left: "30%",
-                          width: "40%",
-                          height: 2,
-                          bgcolor: "white",
-                          borderRadius: 4,
-                        },
                       }),
                     }}
                   >
@@ -175,48 +136,19 @@ const Navbar = ({ mode, toggleTheme }) => {
                   </Button>
                 ))}
 
+                {/* User Menu or Login Button */}
                 {user ? (
                   <>
-                    <Box sx={{ ml: 2 }}>
-                      <Tooltip title="Account settings">
-                        <IconButton onClick={handleUserMenuOpen} sx={{ p: 0, border: "2px solid white" }}>
-                          <Avatar
-                            alt={user.username}
-                            src={user.avatar || "/static/images/avatar/default.jpg"}
-                            sx={{ 
-                              bgcolor: theme.palette.secondary.main, 
-                              color: "white", 
-                              width: scrolled ? 36 : 40, 
-                              height: scrolled ? 36 : 40,
-                              transition: "all 0.3s ease"
-                            }}
-                          >
-                            {user.username.charAt(0).toUpperCase()}
-                          </Avatar>
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <Menu
-                      anchorEl={userMenuAnchor}
-                      open={Boolean(userMenuAnchor)}
-                      onClose={handleUserMenuClose}
-                      PaperProps={{
-                        elevation: 2,
-                        sx: {
-                          mt: 1.5,
-                          borderRadius: 2,
-                          minWidth: 180,
-                        },
-                      }}
-                      transformOrigin={{ horizontal: "right", vertical: "top" }}
-                      anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                    >
-                      <Box sx={{ px: 2, py: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {user.username}
-                        </Typography>
-                      </Box>
-
+                    <IconButton onClick={handleUserMenuOpen} sx={{ ml: 2 }}>
+                      <Avatar
+                        alt={user.username}
+                        src={user.avatar || "/static/images/avatar/default.jpg"}
+                        sx={{ bgcolor: theme.palette.secondary.main }}
+                      >
+                        {user.username.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </IconButton>
+                    <Menu anchorEl={userMenuAnchor} open={Boolean(userMenuAnchor)} onClose={handleUserMenuClose}>
                       <MenuItem onClick={handleLogout}>
                         <ListItemIcon>
                           <Logout fontSize="small" />
@@ -232,14 +164,7 @@ const Navbar = ({ mode, toggleTheme }) => {
                     to="/login"
                     variant="outlined"
                     startIcon={<Login />}
-                    sx={{
-                      ml: 1,
-                      borderColor: "rgba(255,255,255,0.5)",
-                      borderRadius: 2,
-                      px: scrolled ? 1.5 : 2,
-                      py: scrolled ? 0.8 : 1,
-                      transition: "all 0.3s ease",
-                    }}
+                    sx={{ ml: 1 }}
                   >
                     Login
                   </Button>
@@ -247,32 +172,13 @@ const Navbar = ({ mode, toggleTheme }) => {
               </Box>
             )}
 
-            {/* Mobile Menu Button with Theme Toggle */}
+            {/* Mobile Menu Button */}
             {isMobile && (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Tooltip title={`Switch to ${mode === "light" ? "dark" : "light"} mode`} arrow>
-                  <IconButton
-                    onClick={toggleTheme}
-                    color="inherit"
-                    sx={{
-                      mr: 1,
-                      bgcolor: "rgba(255,255,255,0.1)",
-                      "&:hover": {
-                        bgcolor: "rgba(255,255,255,0.2)",
-                      },
-                    }}
-                  >
-                    {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-                  </IconButton>
-                </Tooltip>
-                
-                <IconButton
-                  edge="end"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={toggleMobileMenu}
-                  sx={{ bgcolor: "rgba(255,255,255,0.1)" }}
-                >
+              <Box sx={{ display: "flex" }}>
+                <IconButton onClick={toggleTheme} color="inherit" sx={{ mr: 1 }}>
+                  {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                </IconButton>
+                <IconButton color="inherit" onClick={toggleMobileMenu}>
                   <MenuIcon />
                 </IconButton>
               </Box>
@@ -281,23 +187,13 @@ const Navbar = ({ mode, toggleTheme }) => {
         </Container>
       </AppBar>
 
-      {/* Toolbar placeholder to prevent content from hiding under the app bar */}
+      {/* Toolbar placeholder */}
       <Toolbar sx={{ mb: 2 }} />
 
-      {/* Mobile Drawer - Simplified */}
-      <Drawer
-        anchor="right"
-        open={mobileMenuOpen}
-        onClose={toggleMobileMenu}
-        PaperProps={{
-          sx: {
-            width: "70%",
-            maxWidth: 280,
-            bgcolor: theme.palette.background.paper,
-          },
-        }}
-      >
-        <Box sx={{ p: 2 }}>
+      {/* Mobile Drawer */}
+      <Drawer anchor="right" open={mobileMenuOpen} onClose={toggleMobileMenu} sx={{ width: 250 }}>
+        <Box sx={{ width: 250, p: 2 }}>
+          {/* Logo in drawer */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
             <Movie sx={{ mr: 1, color: theme.palette.primary.main }} />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -306,21 +202,17 @@ const Navbar = ({ mode, toggleTheme }) => {
           </Box>
           <Divider sx={{ mb: 2 }} />
 
+          {/* User info if logged in */}
           {user && (
-            <Box sx={{ mb: 3, display: "flex", alignItems: "center" }}>
-              <Avatar
-                alt={user.username}
-                src={user.avatar || "/static/images/avatar/default.jpg"}
-                sx={{ bgcolor: theme.palette.primary.main, color: "white", width: 40, height: 40, mr: 2 }}
-              >
+            <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
+              <Avatar alt={user.username} src={user.avatar || "/static/images/avatar/default.jpg"} sx={{ mr: 2 }}>
                 {user.username.charAt(0).toUpperCase()}
               </Avatar>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {user.username}
-              </Typography>
+              <Typography variant="subtitle1">{user.username}</Typography>
             </Box>
           )}
 
+          {/* Navigation links */}
           <List>
             {navLinks.map((link) => (
               <ListItem
@@ -330,15 +222,8 @@ const Navbar = ({ mode, toggleTheme }) => {
                 to={link.path}
                 onClick={toggleMobileMenu}
                 selected={isActive(link.path)}
-                sx={{
-                  borderRadius: 2,
-                  mb: 1,
-                  ...(isActive(link.path) && {
-                    bgcolor: "rgba(0,0,0,0.05)",
-                  }),
-                }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>{link.icon}</ListItemIcon>
+                <ListItemIcon>{link.icon}</ListItemIcon>
                 <ListItemText
                   primary={
                     link.name === "Favorites" && user && favorites.length > 0 ? (
@@ -356,20 +241,15 @@ const Navbar = ({ mode, toggleTheme }) => {
 
             <Divider sx={{ my: 1 }} />
 
-            {/* Theme Toggle in Mobile Menu */}
-            <ListItem 
-              button 
-              onClick={toggleTheme}
-              sx={{ borderRadius: 2, mb: 1 }}
-            >
-              <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
-                {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-              </ListItemIcon>
+            {/* Theme toggle in drawer */}
+            <ListItem button onClick={toggleTheme}>
+              <ListItemIcon>{mode === "light" ? <Brightness4 /> : <Brightness7 />}</ListItemIcon>
               <ListItemText primary={`${mode === "light" ? "Dark" : "Light"} Mode`} />
             </ListItem>
 
             <Divider sx={{ my: 1 }} />
 
+            {/* Login/Logout */}
             {user ? (
               <ListItem
                 button
@@ -377,16 +257,15 @@ const Navbar = ({ mode, toggleTheme }) => {
                   logout()
                   toggleMobileMenu()
                 }}
-                sx={{ borderRadius: 2 }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: theme.palette.error.main }}>
+                <ListItemIcon>
                   <Logout />
                 </ListItemIcon>
                 <ListItemText primary="Logout" />
               </ListItem>
             ) : (
-              <ListItem button component={RouterLink} to="/login" onClick={toggleMobileMenu} sx={{ borderRadius: 2 }}>
-                <ListItemIcon sx={{ minWidth: 40, color: theme.palette.primary.main }}>
+              <ListItem button component={RouterLink} to="/login" onClick={toggleMobileMenu}>
+                <ListItemIcon>
                   <Login />
                 </ListItemIcon>
                 <ListItemText primary="Login" />
@@ -395,7 +274,7 @@ const Navbar = ({ mode, toggleTheme }) => {
           </List>
         </Box>
       </Drawer>
-    </motion.div>
+    </>
   )
 }
 

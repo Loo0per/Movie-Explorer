@@ -1,28 +1,30 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardActionArea, Button, CardMedia, CardContent } from '@mui/material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
 
 const MovieCard = ({ movie, onRemoveFavorite }) => {
   const navigate = useNavigate();
-  const { user, getFavorites, setFavorites } = useContext(AuthContext);
-  const favorites = user ? getFavorites() : [];
-  const isFavorite = favorites.some(fav => fav.id === movie.id);
+  const { user, addFavorite, removeFavorite, isInFavorites } = useContext(AuthContext);
+  const isFavorite = user ? isInFavorites(movie.id) : false;
 
   const handleClick = () => {
     navigate(`/movie/${movie.id}`);
   };
 
-  const handleAddFavorite = (e) => {
+  const handleFavoriteToggle = (e) => {
     e.stopPropagation();
+    if (!user) return;
+    
     if (!isFavorite) {
-      setFavorites([...favorites, movie]);
+      addFavorite(movie);
+    } else {
+      if (typeof onRemoveFavorite === 'function') {
+        onRemoveFavorite(movie.id);
+      }
+      removeFavorite(movie.id);
     }
-  };
-
-  const handleRemoveFavorite = (e) => {
-    e.stopPropagation();
-    setFavorites(favorites.filter(fav => fav.id !== movie.id));
   };
 
   return (
@@ -30,7 +32,12 @@ const MovieCard = ({ movie, onRemoveFavorite }) => {
       width: 200, 
       height: 350, 
       margin: '0 auto',
-      boxShadow: 2
+      boxShadow: 2,
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: 4
+      }
     }}>
       <CardActionArea onClick={handleClick}>
         <CardMedia
@@ -67,36 +74,16 @@ const MovieCard = ({ movie, onRemoveFavorite }) => {
           </Typography>
           {user && (
             <Box sx={{ mt: 1 }}>
-              {!isFavorite ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  onClick={handleAddFavorite}
-                >
-                  Add to Favorites
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  size="small"
-                  disabled
-                >
-                  In Favorites
-                </Button>
-              )}
-              {isFavorite && typeof onRemoveFavorite === 'function' && (
-                <Button
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  sx={{ mt: 1 }}
-                  onClick={handleRemoveFavorite}
-                >
-                  Remove
-                </Button>
-              )}
+              <Button
+                variant={isFavorite ? "contained" : "outlined"}
+                color={isFavorite ? "error" : "secondary"}
+                size="small"
+                startIcon={isFavorite ? <Favorite /> : <FavoriteBorder />}
+                onClick={handleFavoriteToggle}
+                fullWidth
+              >
+                {isFavorite ? "Remove Favorite" : "Add to Favorites"}
+              </Button>
             </Box>
           )}
         </CardContent>

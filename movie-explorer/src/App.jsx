@@ -7,25 +7,21 @@ import { getTheme } from "./styles/theme"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import { motion, AnimatePresence } from "framer-motion"
-import "./App.css"
+
 
 function App() {
   const [mode, setMode] = useState(() => localStorage.getItem("theme-mode") || "light")
   const [mounted, setMounted] = useState(false)
   const theme = getTheme(mode)
 
-  // Toggle theme function
   const toggleTheme = () => {
     setMode(prevMode => prevMode === "light" ? "dark" : "light")
   }
-
-  // Save theme preference and set mounted state
   useEffect(() => {
     localStorage.setItem("theme-mode", mode)
     setMounted(true)
   }, [mode])
 
-  // Avoid theme flicker on initial load
   if (!mounted) return null
 
   return (
@@ -47,7 +43,7 @@ function App() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.4 }}
-                  sx={{ flexGrow: 1, overflowX: "hidden" }}
+                  sx={{ flexGrow: 1, width: '100%', overflowX: 'hidden' }}
                 >
                   <AppRoutes />
                 </Box>

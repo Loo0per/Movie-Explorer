@@ -25,7 +25,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (login(username, password)) {
-      navigate("/"); // Redirect to Home on successful login
+      navigate("/"); 
     } else {
       setError("Invalid username or password. Please try again.");
     }
