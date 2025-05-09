@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Box, Typography, Container, Grid, Link, IconButton, Divider } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TwitterIcon from "@mui/icons-material/Twitter";

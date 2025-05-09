@@ -75,7 +75,7 @@ const Navbar = ({ mode, toggleTheme }) => {
     { name: "Favorites", path: "/favorites", icon: <Favorite /> },
   ]
 
-
+  // Check if current path is active
   const isActive = (path) => {
     return location.pathname === path
   }

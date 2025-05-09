@@ -109,10 +109,10 @@ const Login = () => {
             Demo Accounts:
           </Typography>
           <Typography variant="body2" color="textSecondary">
-            Username: alice | Password: password123
+            Username: alice | Password: alice123
           </Typography>
           <Typography variant="body2" color="textSecondary">
-            Username: bob | Password: secure456
+            Username: bob | Password: bob123
           </Typography>
         </Box>
       </Paper>

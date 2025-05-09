@@ -88,7 +88,7 @@ const palettes = {
   dark: {
     mode: "dark",
     primary: {
-      main: "#4C5454",
+      main: "#1e1e1e",
       light: "#e3f2fd",
       dark: "#42a5f5",
       contrastText: "#ffffff",
@@ -100,7 +100,7 @@ const palettes = {
       contrastText: "#ffffff",
     },
     background: {
-      default: "#100B00",
+      default: "#343434",
       paper: "#1e1e1e",
     },
     text: {
